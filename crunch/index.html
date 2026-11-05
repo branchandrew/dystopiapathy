@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crunch Ratings: 101 TTRPGs</title>
+<meta name="description" content="Crunch scores for 101 tabletop RPGs: total, minimum, GM and player complexity, from the Dystopiapathy video.">
+<style>
+@font-face { font-family: "Rajdhani"; src: url("fonts/Rajdhani-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+:root {
+  --bg: #0e0726; --bg2: #1c0c44; --panel: #140a35;
+  --cyan: #40f2ff; --mag: #ff40d9; --vio: #8c59ff; --ice: #ebf2ff; --gold: #ffd173; --dim: #9a8cc6;
+  --gm-dim: #1d3a52; --pl-dim: #2e2357;
+  --fs: 18px;
+}
+* { box-sizing: border-box; }
+html { color-scheme: dark; }
+body { margin: 0; background: radial-gradient(ellipse at 50% 20%, var(--bg2) 0%, var(--bg) 70%) fixed, var(--bg);
+  color: var(--ice); font-family: "Rajdhani", system-ui, sans-serif; font-weight: 600; font-size: var(--fs); }
+a { color: var(--cyan); }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 20px 16px 48px; }
+.frame { border: 2px solid rgba(235,242,255,.85); border-radius: 18px; padding: 18px 22px;
+  box-shadow: 0 0 14px var(--vio), 0 0 34px rgba(140,89,255,.45), inset 0 0 14px rgba(140,89,255,.4);
+  display: flex; flex-direction: column; gap: 12px; height: min(86vh, 980px); }
+header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+h1 { margin: 0; font-size: clamp(24px, 3.4vw, 42px); letter-spacing: .03em; font-weight: 600;
+  text-shadow: 0 0 10px var(--cyan), 0 0 24px rgba(64,242,255,.6); }
+.legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 18px; }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.legend i { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+.controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.tabs { display: inline-flex; border: 2px solid var(--vio); border-radius: 12px; overflow: auto; max-width: 100%;
+  box-shadow: 0 0 10px rgba(140,89,255,.5); }
+.tabs button { font: inherit; font-size: 18px; color: var(--dim); background: transparent; border: 0; white-space: nowrap;
+  padding: 7px 16px; cursor: pointer; }
+.tabs button + button { border-left: 1px solid rgba(140,89,255,.5); }
+.tabs button[aria-pressed="true"] { color: var(--ice); background: rgba(255,64,217,.18); text-shadow: 0 0 8px var(--mag);
+  box-shadow: inset 0 -3px 0 var(--mag); }
+select, input[type=search] { font: inherit; font-size: 18px; color: var(--ice); background: rgba(14,7,38,.85);
+  border: 2px solid var(--cyan); border-radius: 12px; padding: 6px 12px; box-shadow: 0 0 10px rgba(64,242,255,.45); }
+input[type=search] { min-width: 200px; flex: 1; max-width: 340px; }
+input::placeholder { color: var(--dim); }
+.chart { position: relative; flex: 1; min-height: 0; }
+.scroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-color: var(--vio) transparent; }
+svg { display: block; width: 100%; }
+.grid { stroke: rgba(140,89,255,.28); stroke-width: 1; }
+.tick { fill: var(--dim); font-size: 14px; text-anchor: middle; }
+.name { fill: var(--ice); }
+.row:hover .name, .row.hot .name { fill: #fff; }
+.b-total { fill: var(--gold); } .b-min { fill: var(--mag); }
+.b-gm { fill: var(--gm-dim); transition: fill .15s; } .b-pl { fill: var(--pl-dim); transition: fill .15s; }
+.row:hover .b-gm, .row.hot .b-gm { fill: var(--cyan); } .row:hover .b-pl, .row.hot .b-pl { fill: var(--vio); }
+.row .band { fill: transparent; } .row:hover .band, .row.hot .band { fill: rgba(140,89,255,.14); }
+.tip { position: absolute; display: none; z-index: 20; min-width: 230px; max-width: min(360px, 90%);
+  background: rgba(16,8,44,.97); border: 2px solid var(--mag); border-radius: 12px; padding: 10px 14px;
+  box-shadow: 0 0 16px rgba(255,64,217,.6); line-height: 1.35; pointer-events: none; }
+.tip .t { font-size: 20px; margin-bottom: 4px; text-shadow: 0 0 8px var(--mag); }
+.tip .r { display: flex; justify-content: space-between; gap: 18px; font-variant-numeric: tabular-nums; }
+.tip .n { color: var(--dim); font-size: 15px; margin-top: 6px; }
+.empty { position: absolute; inset: 40% 0 auto; text-align: center; color: var(--dim); display: none; }
+section { margin-top: 28px; }
+h2 { font-size: 26px; margin: 0 0 8px; text-shadow: 0 0 8px var(--vio); font-weight: 600; }
+p { line-height: 1.45; max-width: 75ch; margin: 6px 0; color: #d9d2f2; }
+.dl { display: flex; gap: 12px; flex-wrap: wrap; margin: 12px 0; }
+.dl a { text-decoration: none; border: 2px solid var(--gold); color: var(--gold); border-radius: 12px; padding: 7px 14px;
+  box-shadow: 0 0 10px rgba(255,209,115,.35); }
+.tablewrap { overflow-x: auto; border: 2px solid rgba(140,89,255,.6); border-radius: 14px; }
+table { border-collapse: collapse; width: 100%; font-size: 16px; }
+th, td { padding: 7px 10px; text-align: left; border-bottom: 1px solid rgba(140,89,255,.25); vertical-align: top; }
+th { position: sticky; top: 0; background: var(--panel); cursor: pointer; white-space: nowrap; color: var(--cyan); }
+th[aria-sort]::after { content: " ▾"; } th[aria-sort="ascending"]::after { content: " ▴"; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+td.note { color: var(--dim); font-size: 14px; min-width: 260px; }
+tr:hover td { background: rgba(140,89,255,.1); }
+footer { margin-top: 28px; color: var(--dim); font-size: 15px; }
+@media (max-width: 720px) {
+  :root { --fs: 16px; }
+  .wrap { padding: 12px 10px 40px; }
+  .frame { padding: 12px 12px; border-radius: 14px; height: 82vh; }
+  .legend { font-size: 15px; gap: 12px; }
+  .tabs button, select, input[type=search] { font-size: 16px; }
+  input[type=search] { max-width: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="frame">
+    <header>
+      <h1>101 TTRPG Systems Crunch Rating</h1>
+      <div class="legend">
+        <span><i style="background:var(--gold)"></i>Total</span>
+        <span><i style="background:var(--mag)"></i>Minimum</span>
+        <span><i style="background:var(--cyan)"></i>GM</span>
+        <span><i style="background:var(--vio)"></i>Player</span>
+      </div>
+    </header>
+    <div class="controls">
+      <div class="tabs" role="group" aria-label="Filter">
+        <button data-tab="all" aria-pressed="true">All games</button>
+        <button data-tab="dnd" aria-pressed="false">D&amp;D editions</button>
+        <button data-tab="narrative" aria-pressed="false">Narrative-driven</button>
+        <button data-tab="popular" aria-pressed="false">Popular picks</button>
+      </div>
+      <select id="sort" aria-label="Sort">
+        <option value="complexity">Sort: total complexity</option>
+        <option value="minimum">Sort: minimum</option>
+        <option value="gm">Sort: GM complexity</option>
+        <option value="player">Sort: player complexity</option>
+        <option value="popularity">Sort: popularity (estimated)</option>
+        <option value="date">Sort: release date</option>
+        <option value="name">Sort: name</option>
+      </select>
+      <input id="q" type="search" placeholder="Find a game…" aria-label="Find a game">
+    </div>
+    <div class="chart" id="chart">
+      <div class="scroll" id="scroll"><svg id="svg" role="img" aria-label="Crunch scores as bars"></svg></div>
+      <div class="tip" id="tip"></div>
+      <div class="empty" id="empty">No game matches that search.</div>
+    </div>
+  </div>
+
+  <section>
+    <h2>How the scores work</h2>
+    <p>Every distinct thing a game makes you resolve counts as one crunch point: a roll, a table lookup, or a procedure
+      with a decision in it, as written in the core book. <b style="color:var(--gold)">Total</b> is everything in the
+      book; <b style="color:var(--mag)">Minimum</b> is the essential rules only, the game as most tables actually play
+      it. A procedure that both sides of the table run counts once for the <b style="color:var(--cyan)">GM</b> and once
+      for the <b style="color:var(--vio)">players</b>, so GM + Player = Total. Individual spells, feats, powers and
+      equipment don't count on their own: they scale past the core book. Popularity is an estimate.</p>
+    <div class="dl">
+      <a href="data/ttrpg-crunch-101.csv" download>Download the data (CSV)</a>
+      <a href="data/ttrpg-crunch-101.md">Full write-up with scoring notes</a>
+    </div>
+  </section>
+
+  <section>
+    <h2>All the data</h2>
+    <p>Click a column to sort. Tap or hover a bar in the chart for a game's numbers.</p>
+    <div class="tablewrap"><table id="table"><thead></thead><tbody></tbody></table></div>
+  </section>
+
+  <footer>From the Dystopiapathy video on crunch vs rules-light. Scores follow one rubric applied to each game's core
+    rules; disagree with one? Tell me in the comments.</footer>
+</div>
+<script src="d3.min.js"></script>
+<script>
+// Names as he wants them shown (2026-11-05); the raw data keeps its full titles.
+const RENAME = { 'GURPS Basic Set: Characters': 'GURPS Basic', 'Clockworld': 'Tales From Elsewhere: Clockworld' };
+(async function () {
+  const T = (s) => s === 'True' || s === 'true' || s === true;
+  const raw = await d3.csv('data/ttrpg-crunch-101.csv');
+  const DATA = raw.map((d) => ({
+    name: RENAME[d.game] || d.game.replace(/\s*\((?!~?\d{4}\))[^)]*\)/g, '').trim(), game: d.game, year: +d.year,
+    total: +d.total, minimum: +d.minimum, gm: +d.gm_total, player: +d.player_total,
+    gmMin: +d.gm_minimum, plMin: +d.player_minimum, conf: d.score_confidence,
+    pop: d.popularity_rank === '' ? 9999 : +d.popularity_rank, tier: d.popularity_tier,
+    dnd: T(d.is_dnd), narrative: T(d.is_narrative), popular: T(d.is_popular_pick), note: d.scoring_note,
+  }));
+  const $ = (id) => document.getElementById(id);
+  const svg = $('svg'), scroll = $('scroll'), chart = $('chart'), tip = $('tip');
+  let tab = 'all', sortBy = 'complexity', q = '', rows = [], pinned = null;
+
+  document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => {
+    tab = b.dataset.tab; document.querySelectorAll('[data-tab]').forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+    scroll.scrollTop = 0; hideTip(); draw(); }));
+  $('sort').addEventListener('change', (e) => { sortBy = e.target.value; scroll.scrollTop = 0; hideTip(); draw(); });
+  $('q').addEventListener('input', (e) => { q = e.target.value.trim().toLowerCase(); scroll.scrollTop = 0; hideTip(); draw(); });
+
+  const label = (d) => (d.name.includes(String(d.year)) ? d.name : `${d.name} (${d.year})`);
+  const cmp = { complexity: (a, b) => b.total - a.total, minimum: (a, b) => b.minimum - a.minimum, gm: (a, b) => b.gm - a.gm,
+    player: (a, b) => b.player - a.player, popularity: (a, b) => a.pop - b.pop, date: (a, b) => a.year - b.year, name: () => 0 };
+  const sorted = (list) => list.slice().sort((a, b) => cmp[sortBy](a, b) || a.name.localeCompare(b.name));
+
+  function showTip(d, cx, cy) {
+    tip.innerHTML = '';
+    const t = document.createElement('div'); t.className = 't'; t.textContent = label(d); tip.appendChild(t);
+    [['TOTAL', d.total, 'var(--gold)'], ['MINIMUM', d.minimum, 'var(--mag)'], ['GM', `${d.gm} (min ${d.gmMin})`, 'var(--cyan)'],
+     ['PLAYER', `${d.player} (min ${d.plMin})`, 'var(--vio)']].forEach(([l, v, c]) => {
+      const r = document.createElement('div'); r.className = 'r';
+      const a = document.createElement('span'); a.textContent = l; a.style.color = c;
+      const b = document.createElement('b'); b.textContent = v; r.append(a, b); tip.appendChild(r); });
+    const n = document.createElement('div'); n.className = 'n';
+    n.textContent = `Popularity #${d.pop < 9999 ? d.pop : '–'} · confidence ${d.conf}`; tip.appendChild(n);
+    tip.style.display = 'block';
+    const box = chart.getBoundingClientRect();
+    let left = cx - box.left + 18, top = cy - box.top - tip.offsetHeight - 14;
+    if (left + tip.offsetWidth > box.width - 6) left = Math.max(4, cx - box.left - tip.offsetWidth - 18);
+    if (top < 4) top = cy - box.top + 22;
+    tip.style.left = left + 'px'; tip.style.top = top + 'px';
+  }
+  function hideTip() { tip.style.display = 'none'; pinned = null; document.querySelectorAll('.row.hot').forEach((r) => r.classList.remove('hot')); }
+  document.addEventListener('click', (e) => { if (!svg.contains(e.target)) hideTip(); });
+
+  function draw() {
+    let list = DATA;
+    if (tab === 'dnd') list = list.filter((d) => d.dnd);
+    if (tab === 'narrative') list = list.filter((d) => d.narrative);
+    if (tab === 'popular') list = list.filter((d) => d.popular);
+    if (q) list = list.filter((d) => (d.name + ' ' + d.game).toLowerCase().includes(q));
+    rows = sorted(list);
+    $('empty').style.display = rows.length ? 'none' : 'block';
+    const width = scroll.clientWidth, narrow = width < 640, few = rows.length <= 20;
+    const barH = few ? (narrow ? 9 : 12) : (narrow ? 5 : 7), gap = 2, gameGap = few ? 16 : (narrow ? 9 : 11);
+    const rowH = barH * 4 + gap * 3, fs = narrow ? 13 : (few ? 20 : 17);
+    const nameW = Math.min(440, width * (narrow ? 0.42 : 0.3)), x0 = nameW + 12, right = 16, top = 24;
+    const innerH = rows.length * rowH + Math.max(0, rows.length - 1) * gameGap;
+    const height = Math.max(innerH + top + 12, scroll.clientHeight);
+    svg.setAttribute('width', width); svg.setAttribute('height', height); svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    const x = d3.scaleLinear().domain([0, d3.max(rows, (d) => d.total) || 1]).nice().range([0, width - x0 - right]);
+    const s = d3.select(svg); s.selectAll('*').remove();
+    const g = s.append('g').attr('transform', `translate(0,${top})`);
+    x.ticks(narrow ? 4 : 7).forEach((t) => {
+      g.append('line').attr('class', 'grid').attr('x1', x0 + x(t)).attr('x2', x0 + x(t)).attr('y1', 0).attr('y2', innerH);
+      g.append('text').attr('class', 'tick').attr('x', x0 + x(t)).attr('y', -7).text(t); });
+    rows.forEach((d, i) => {
+      const y = i * (rowH + gameGap);
+      const r = g.append('g').attr('class', 'row');
+      r.append('rect').attr('class', 'band').attr('x', 0).attr('y', y - gameGap / 2).attr('width', width).attr('height', rowH + gameGap).attr('rx', 8);
+      const pre = sortBy === 'popularity' && d.pop < 9999 ? `${d.pop}. ` : '';
+      const lbl = r.append('text').attr('class', 'name').attr('x', 8).attr('y', y + rowH / 2).attr('dy', '0.35em').attr('font-size', fs).text(pre + label(d));
+      const node = lbl.node(), full = node.textContent;
+      if (node.getComputedTextLength() > nameW - 6) {
+        let lo = 0, hi = full.length;
+        while (lo < hi) { const m = (lo + hi + 1) >> 1; node.textContent = full.slice(0, m).trimEnd() + '…'; if (node.getComputedTextLength() <= nameW - 6) lo = m; else hi = m - 1; }
+        node.textContent = full.slice(0, lo).trimEnd() + '…';
+      }
+      [['b-total', d.total], ['b-min', d.minimum], ['b-gm', d.gm], ['b-pl', d.player]].forEach(([c, v], k) =>
+        r.append('rect').attr('class', c).attr('x', x0).attr('y', y + k * (barH + gap)).attr('width', Math.max(0, x(v))).attr('height', barH).attr('rx', barH / 2));
+      r.append('rect').attr('x', 0).attr('y', y - gameGap / 2).attr('width', width).attr('height', rowH + gameGap).attr('fill', 'transparent')
+        .on('mousemove', (ev) => { if (!pinned) showTip(d, ev.clientX, ev.clientY); })
+        .on('mouseleave', () => { if (!pinned) tip.style.display = 'none'; })
+        .on('click', (ev) => { ev.stopPropagation(); document.querySelectorAll('.row.hot').forEach((o) => o.classList.remove('hot'));
+          if (pinned === d) { hideTip(); return; } pinned = d; r.node().classList.add('hot'); showTip(d, ev.clientX, ev.clientY); });
+    });
+  }
+
+  // the full table
+  const COLS = [['Game', (d) => d.game], ['Year', (d) => d.year, 1], ['Total', (d) => d.total, 1], ['Minimum', (d) => d.minimum, 1],
+    ['GM', (d) => d.gm, 1], ['GM min', (d) => d.gmMin, 1], ['Player', (d) => d.player, 1], ['Player min', (d) => d.plMin, 1],
+    ['Popularity', (d) => (d.pop < 9999 ? d.pop : ''), 1], ['Confidence', (d) => d.conf], ['Scoring notes', (d) => d.note]];
+  let tSort = 2, tDir = -1;
+  function table() {
+    const head = document.querySelector('#table thead'), body = document.querySelector('#table tbody');
+    head.innerHTML = '<tr>' + COLS.map((c, i) => `<th data-i="${i}"${i === tSort ? ` aria-sort="${tDir > 0 ? 'ascending' : 'descending'}"` : ''}>${c[0]}</th>`).join('') + '</tr>';
+    const r = DATA.slice().sort((a, b) => { const va = COLS[tSort][1](a), vb = COLS[tSort][1](b);
+      return (typeof va === 'number' && typeof vb === 'number' ? va - vb : String(va).localeCompare(String(vb))) * tDir; });
+    body.innerHTML = '';
+    r.forEach((d) => { const tr = document.createElement('tr');
+      COLS.forEach(([n, f, num]) => { const td = document.createElement('td'); td.textContent = f(d);
+        if (num) td.className = 'num'; if (n === 'Scoring notes') td.className = 'note'; tr.appendChild(td); });
+      body.appendChild(tr); });
+    head.querySelectorAll('th').forEach((th) => th.addEventListener('click', () => {
+      const i = +th.dataset.i; tDir = i === tSort ? -tDir : (COLS[i][2] ? -1 : 1); tSort = i; table(); }));
+  }
+
+  window.addEventListener('resize', draw);
+  draw(); table();
+})();
+</script>
+</body>
+</html>
