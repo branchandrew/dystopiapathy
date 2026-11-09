@@ -222,24 +222,20 @@ footer p { color: var(--dim); font-size: 15px; margin: 4px 0; }
 
     <section class="panel step" aria-labelledby="mode-q">
       <div class="steprow">
-      <div class="qrow"><h2 id="mode-q">First, how do you play?</h2><button type="button" class="why-btn" aria-expanded="false" aria-controls="x-mode" onclick="toggleWhy(this)">What does this mean?</button></div>
+      <div class="qrow"><h2 id="mode-q">First, how do you play?</h2></div>
       <div class="tabs big" role="radiogroup" aria-labelledby="mode-q">
         <label><input type="radio" name="mode" value="gm" onchange="pickMode()"> GM</label>
         <label><input type="radio" name="mode" value="player" onchange="pickMode()"> Player</label>
         <label><input type="radio" name="mode" value="solo" onchange="pickMode()"> Solo</label>
       </div>
       </div>
-      <div class="why-text" id="x-mode" hidden>Running a game and playing in one are different jobs. <b>GM</b> matches on the
-        rules load the game master carries: prep, adjudicating, running every enemy. <b>Player</b> matches on what a player
-        has to learn and track for one character. <b>Solo</b> means you do both, so it uses a blend of the two.</div>
     </section>
 
     <div class="cols" id="rest" hidden>
       <div class="pane" id="controls">
         <div class="panel">
           <div class="qrow"><h2>Themes you want</h2><button type="button" class="why-btn" aria-expanded="false" aria-controls="x-themes" onclick="toggleWhy(this)">What does this mean?</button></div>
-          <div class="why-text" id="x-themes" hidden>The settings and genres you want to play in. A game stays in the running if it
-            has <i>any</i> theme you tick. Leave them all unticked and every game is considered.</div>
+          <div class="why-text" id="x-themes" hidden>The settings and genres you want to play in. Leave them all unticked and every game is considered.</div>
           <div class="tags" id="tags"></div>
         </div>
         <p class="note">Set your ideal on each slider and how much you care. Importance 0 ignores that axis. Then hit GO.</p>
@@ -281,30 +277,28 @@ const TAG_ORDER = ["high fantasy","heroic fantasy","sword & sorcery","mythic","a
   "modern/realistic","historical","animal/cozy","superhero","universal"];
 
 const AXES = [
- {key:'load', q:'How much rules load can you handle?', left:'Light', right:'Heavy', cap:true,
-  more:'Uses GM load, player load, or a blend depending on your Mode. These are percentile ranks across all scored games, not page counts.'},
- {key:'onramp', q:'Start light and grow, or lean from day one?', left:'Lean &amp; fixed', right:'Strip down &amp; grow',
-  more:'Low = everything is essential, no hidden chapters. High = a big game you can start small and add systems to over time (the min/total ratio).'},
+ {key:'load', q:'How much rules crunchiness do you prefer?', left:'Light', right:'Heavy', cap:true,
+  more:'Each game is rated on how complex its rules are for both players and the game master. The crunch score increases the more unique procedures and rulings a game has.'},
+ {key:'onramp', q:'Easy to start simple and grow vs learn everything at once', left:'Learn it all at once', right:'Start simple &amp; grow',
+  more:'Low = everything is essential, no hidden chapters. High = a big game you can start small and add systems to over time.'},
  {key:'build_depth', q:'How much character-building / optimization?', left:'Pick &amp; play', right:'Deep builds',
-  more:'Low = grab a template and go. High = feats, skills, builds you tinker with (min-maxer territory). This is separate from rules load.'},
+  more:'Low = character creation and growth is extremely basic with minimal mechanical options. High = feats, skills, builds you tinker with (min-maxer territory) allowing you to craft a unique and optimized character throughout the game.'},
  {key:'combat_centrality', q:'How central is combat?', left:'Rare / abstract', right:'Main event',
   more:'How much of the game is built around fighting versus talking, exploring, or scheming.'},
  {key:'tactical_depth', q:'How tactical is a fight?', left:'Roll to hit', right:'Grid tactics',
   more:'Low = roll, compare, done. High = positioning, flanking, conditions, action economy, battlefield decisions.'},
- {key:'strategic_scope', q:'Do you run things bigger than your party?', left:'Just the adventure', right:'Strongholds &amp; factions',
-  more:'Some games stay on the adventure in front of you: this dungeon, this job, this fight. Others add a second layer you play between adventures: running a stronghold or a kingdom, growing a crew and its turf, steering a faction, raising an army, managing money and trade. Low = no such layer. High = it is a big part of play (ACKS II, Stars Without Number, Pendragon, Blades in the Dark).'},
+ {key:'strategic_scope', q:'Do you like building more than just your character? (bastions, careers, armies, etc.)', left:'Just the adventure', right:'Strongholds &amp; factions',
+  more:'Some games stay on the adventure in front of you: this dungeon, this job, this fight. Others add a second layer you play between adventures: running a stronghold or a kingdom, growing a crew and its turf, steering a faction, raising an army, managing money and trade. Low = no such layer. High = it is a big part of play: a castle, a domain and a mercenary army in ACKS II; a faction with bases, ships and assets across a sector in Stars Without Number; a family estate and bloodline passed down the generations in Pendragon; a criminal crew with its lair, turf and claims in Blades in the Dark.'},
  {key:'exploration', q:'How much exploration / survival procedure?', left:'None', right:'Dungeon &amp; survival',
   more:'Dungeon turns, light and rations, travel, foraging, mapping, the classic crawl loop.'},
  {key:'lethality', q:'How deadly?', left:'Safe', right:'Deadly',
   more:'Low = PCs rarely die, failure is a setback. High = a bad roll or fight can end a character.'},
  {key:'power_curve', q:'Grounded or superheroic?', left:'Grounded / linear', right:'Superheroic',
-  more:'Low = linear leveling, you stay mortal (Shadowdark, CoC). High = logarithmic, characters become superheroes (D&amp;D, Draw Steel, Lancer).'},
- {key:'story_emphasis', q:'Do the rules push story and drama?', left:'Neutral physics', right:'Drives story',
+  more:'Low = linear leveling, you stay mortal. High = exponential, characters become superheroes.'},
+ {key:'story_emphasis', q:'Do the rules depend on story and drama?', left:'Neutral physics', right:'Drives story',
   more:'Low = mechanics are neutral physics, story is on you. High = mechanics actively generate drama, relationships, theme.'},
  {key:'prep_vs_improv', q:'Prep-heavy or improv-friendly?', left:'Improv-friendly', right:'Prep-heavy',
-  more:'Low = show up and riff. High = rewards stat blocks, tables, prepped content before the session.'},
- {key:'rules_vs_rulings', q:'Rules-dense or rulings-light?', left:'Rulings-light', right:'Rules-dense',
-  more:'Low = rulings over rules, the GM adjudicates. High = a rule for everything, RAW culture.'}
+  more:'Low = show up and riff. High = rewards stat blocks, tables, prepped content before the session.'}
 ];
 
 const state = {};
@@ -384,7 +378,7 @@ function buyLinks(name){
 const WHY_LABEL = {load:'Rules load', onramp:'Start light &amp; grow', build_depth:'Character building',
   combat_centrality:'Combat focus', tactical_depth:'Tactical depth', strategic_scope:'Strongholds &amp; factions',
   exploration:'Exploration &amp; survival', lethality:'Lethality', power_curve:'Power curve',
-  story_emphasis:'Story push', prep_vs_improv:'Prep-heavy', rules_vs_rulings:'Rules-dense'};
+  story_emphasis:'Story dependence', prep_vs_improv:'Prep-heavy'};
 
 var TILE=['#7a5195','#ef5675','#ffa600','#374c80','#bc5090','#2f8e6b','#b5651d','#4a6fa5','#8a3b3b','#556b2f'];
 function tileColor(t){t=t||'';var h=0;for(var i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))>>>0;return TILE[h%TILE.length];}
