@@ -618,7 +618,7 @@ function recompute(){
 
 function buildTags(){
   const present = new Set(GAMES.flatMap(g=>g.themes));
-  const ordered = TAG_ORDER.filter(t=>present.has(t)).concat([...present].filter(t=>!TAG_ORDER.includes(t)));
+  const ordered = [...present].sort((a,b)=>a.localeCompare(b,'en',{sensitivity:'base'}));   // alphabetical (his note 2026-11-09)
   const box=document.getElementById('tags'); box.innerHTML='';
   ordered.forEach(t=>{
     const id='tag-'+t.replace(/\W+/g,'_');
