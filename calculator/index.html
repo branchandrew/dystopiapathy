@@ -248,11 +248,7 @@ footer p { color: var(--dim); font-size: 15px; margin: 4px 0; }
       </div>
 
       <div class="pane" id="matches">
-        <div class="pane-h"><div class="qrow"><h2>Best matches</h2><button type="button" class="why-btn" aria-expanded="false" aria-controls="x-best" onclick="toggleWhy(this)">What does this mean?</button></div><span class="meta" id="topn" hidden>Top 15</span></div>
-        <div class="why-text" id="x-best" hidden>Each game is scored on the questions you answered (sliders you moved). The
-          percentage is how close it sits to the ideal you set, with each one counted as much as you said it matters
-          (Importance 0 ignores it). Until you answer one, games are listed most popular first. Games on the same whole
-          percentage are listed most popular first. In Solo mode, games you can play alone get a boost.</div>
+        <div class="pane-h"><h2>Best matches</h2><span class="meta" id="topn" hidden>Top 15</span></div>
         <div class="go-wrap" id="go-wrap">
           <p>Pick your themes and set the sliders, then:</p>
           <button type="button" id="go" onclick="go()">GO</button>
