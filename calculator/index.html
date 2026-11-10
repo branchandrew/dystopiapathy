@@ -189,6 +189,18 @@ input[type=range]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px rgba(2
 .info-btn { font: inherit; font-size: 15px; color: var(--cyan); background: rgba(64,242,255,.06); cursor: pointer;
   border: 2px solid rgba(64,242,255,.6); border-radius: 12px; padding: 5px 14px; transition: background-color .15s, box-shadow .15s; }
 .info-btn:hover { background: rgba(64,242,255,.16); box-shadow: 0 0 10px rgba(64,242,255,.35); }
+.pane-r { display: flex; align-items: center; gap: 12px; }
+.share-btn { padding: 3px 14px; }
+.share-pop { width: min(460px, calc(100vw - 24px)); }
+.share-h { font-size: 18px; color: var(--ice); margin-bottom: 10px; }
+.share-row { display: flex; gap: 8px; align-items: center; }
+.share-row + .share-row { margin-top: 10px; }
+.share-row input { flex: 1; min-width: 0; font: inherit; font-size: 14px; color: var(--ice); background: #0e0726; border: 1px solid rgba(140,89,255,.6);
+  border-radius: 8px; padding: 6px 8px; }
+.share-links { flex-wrap: wrap; }
+.share-links a, .share-links button { font: inherit; font-size: 15px; text-decoration: none; color: var(--ice); background: rgba(140,89,255,.18);
+  border: 1px solid rgba(140,89,255,.6); border-radius: 10px; padding: 5px 12px; cursor: pointer; }
+.share-links a:hover, .share-links button:hover { border-color: var(--cyan); background: rgba(64,242,255,.14); }
 .info-btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 /* More info: a centred, scrollable dialog; its buy buttons stay at the bottom */
 dialog.info { width: min(780px, calc(100vw - 24px)); max-height: min(88vh, 960px); padding: 0; border: 2px solid var(--cyan);
@@ -316,7 +328,13 @@ footer p { color: var(--dim); font-size: 15px; margin: 4px 0; }
       </div>
 
       <div class="pane" id="matches">
-        <div class="pane-h"><h2>Best matches</h2><span class="meta" id="topn" hidden>Top 15</span></div>
+        <div class="pane-h"><h2>Best matches</h2><span class="pane-r"><span class="meta" id="topn" hidden>Top 15</span>
+          <button type="button" class="info-btn share-btn" id="share-btn" popovertarget="share-pop" aria-expanded="false" hidden>Share</button></span></div>
+        <div class="pop share-pop" popover id="share-pop">
+          <div class="share-h">Share your matches</div>
+          <div class="share-row"><input type="text" id="share-url" readonly aria-label="Link to your results"><button type="button" class="info-btn" id="share-copy" onclick="copyShare()">Copy link</button></div>
+          <div class="share-row share-links" id="share-links"></div>
+        </div>
         <div class="go-wrap" id="go-wrap">
           <p>Pick your themes and set the sliders, then:</p>
           <button type="button" id="go" onclick="go()">GO</button>
@@ -537,12 +555,13 @@ function resetAll(){
   AXES.forEach(a=>{ state[a.key] = {ideal:50, weight: a.key==='load'?70:40, touched:false}; });
   buildAxes();
   document.getElementById('results').innerHTML='';
-  document.getElementById('go-wrap').hidden=false; document.getElementById('topn').hidden=true;
+  document.getElementById('go-wrap').hidden=false; document.getElementById('topn').hidden=true; document.getElementById('share-btn').hidden=true;
+  history.replaceState(null, '', location.pathname);
   document.getElementById('rest').hidden=true;
   document.querySelectorAll('.pane').forEach(p=>{ p.scrollTop=0; }); window.scrollTo(0,0);
 }
 function pickMode(){ document.getElementById('rest').hidden = false; recompute(); }
-function go(){ started = true; document.getElementById('go-wrap').hidden = true; document.getElementById('topn').hidden = false; recompute();
+function go(){ started = true; document.getElementById('go-wrap').hidden = true; document.getElementById('topn').hidden = false; document.getElementById('share-btn').hidden = false; recompute();
   if(window.matchMedia('(max-width: 980px)').matches) document.getElementById('matches').scrollIntoView({block:'start'}); }
 function recompute(){
   if(!started) return;
@@ -637,7 +656,56 @@ function touch(k){ if(!state[k].touched){ state[k].touched=true; document.getEle
 function setIdeal(k,v){ touch(k); state[k].ideal=+v; document.getElementById('iv-'+k).textContent=v; recompute(); }
 function setWeight(k,v){ touch(k); state[k].weight=+v; document.getElementById('wv-'+k).textContent=v; recompute(); }
 
-buildTags(); buildAxes(); recompute();
+// ---- share: the answers ride in the URL (?m=mode&t=theme|theme&g=1&a=key:ideal:importance,...) so a link reopens the same results
+function shareState(){                               // a readable query: ?m=player&t=fantasy,horror&g=1&a=load:40:70,exploration:90:80
+  const parts = []; const mode = document.querySelector('input[name=mode]:checked');
+  if(mode) parts.push('m='+mode.value);
+  if(chosenTags.size) parts.push('t='+[...chosenTags].map(encodeURIComponent).join(','));
+  if(gmlessOnly) parts.push('g=1');
+  const a = AXES.filter(x=>state[x.key].touched).map(x=>x.key+':'+state[x.key].ideal+':'+state[x.key].weight);
+  if(a.length) parts.push('a='+a.join(','));
+  return parts.join('&');
+}
+function shareURL(){ const q=shareState(); return location.origin + location.pathname + (q ? '?'+q : ''); }
+function topNames(n){ return [...document.querySelectorAll('#results .gname')].slice(0,n).map(x=>x.textContent); }
+document.getElementById('share-pop').addEventListener('beforetoggle', e=>{
+  if(e.newState!=='open') return;
+  const url = shareURL(), top = topNames(3);
+  const text = 'My TTRPG matches: ' + top.map((n,i)=>'#'+(i+1)+' '+n).join(', ') + '. Find yours:';
+  document.getElementById('share-url').value = url;
+  document.getElementById('share-copy').textContent = 'Copy link';
+  const E = encodeURIComponent;
+  const links = [
+    ['Email', 'mailto:?subject='+E('My TTRPG matches')+'&body='+E(text+' '+url)],
+    ['Bluesky', 'https://bsky.app/intent/compose?text='+E(text+' '+url)],
+    ['X', 'https://twitter.com/intent/tweet?text='+E(text)+'&url='+E(url)],
+    ['Facebook', 'https://www.facebook.com/sharer/sharer.php?u='+E(url)],
+    ['Reddit', 'https://www.reddit.com/submit?url='+E(url)+'&title='+E('My TTRPG matches')]];
+  document.getElementById('share-links').innerHTML =
+    (navigator.share ? '<button type="button" onclick="nativeShare()">Share\u2026</button>' : '')
+    + links.map(([l,h])=>'<a href="'+h+'" target="_blank" rel="noopener">'+l+'</a>').join('');
+  window.__shareText = text;
+});
+function copyShare(){
+  const i=document.getElementById('share-url'), b=document.getElementById('share-copy');
+  const done=()=>{ b.textContent='Copied!'; };
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(i.value).then(done, ()=>{ i.select(); document.execCommand('copy'); done(); });
+  else { i.select(); document.execCommand('copy'); done(); }
+}
+function nativeShare(){ navigator.share({title:'My TTRPG matches', text: window.__shareText, url: document.getElementById('share-url').value}).catch(()=>{}); }
+// a shared link: rebuild the same answers and show the results straight away
+function loadShared(){
+  const q = new URLSearchParams(location.search); const m = q.get('m');
+  if(!m || !['gm','player','solo'].includes(m)) return;
+  const r = document.querySelector('input[name=mode][value='+m+']'); r.checked = true; pickMode();
+  (q.get('t')||'').split(/[,|]/).filter(Boolean).forEach(t=>{ const c=document.getElementById('tag-'+t.replace(/\W+/g,'_')); if(c){ c.checked=true; chosenTags.add(t); } });
+  if(q.get('g')==='1'){ gmlessOnly=true; document.getElementById('gmless').checked=true; }
+  (q.get('a')||'').split(',').filter(Boolean).forEach(x=>{ const [k,i,w]=x.split(':'); if(state[k] && !isNaN(+i) && !isNaN(+w))
+    state[k] = {ideal: Math.max(0,Math.min(100,+i)), weight: Math.max(0,Math.min(100,+w)), touched: true}; });
+  buildAxes(); go();
+}
+
+buildTags(); buildAxes(); recompute(); loadShared();
 </script>
 <dialog class="info" id="info" aria-labelledby="info-title">
   <div class="info-head"><img id="info-cover" alt=""><div><h3 id="info-title"></h3><div class="meta" id="info-sub"></div></div>
