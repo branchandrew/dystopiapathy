@@ -669,7 +669,8 @@ function shareState(){                               // a readable query: ?m=pla
   if(a.length) parts.push('a='+a.join(','));
   return parts.join('&');
 }
-function shareURL(){ const q=shareState(); return location.origin + location.pathname + (q ? '?'+q : ''); }
+const SHARE_BASE = 'https://dystopiapathy.com/calculator/';   // shared links always point at the real site
+function shareURL(){ const q=shareState(); return SHARE_BASE + (q ? '?'+q : ''); }
 function topNames(n){ return [...document.querySelectorAll('#results .gname')].slice(0,n).map(x=>x.textContent); }
 document.getElementById('share-pop').addEventListener('beforetoggle', e=>{
   if(e.newState!=='open') return;
