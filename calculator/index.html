@@ -20,9 +20,9 @@ body { margin: 0; background: radial-gradient(ellipse at 50% 20%, var(--bg2) 0%,
 a { color: var(--cyan); }
 b, strong { font-weight: 600; }
 :focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
-.wrap { max-width: 1840px; margin: 0 auto; padding: 20px 16px 48px; }
-.frame { padding: 18px 22px;      /* no border around the whole interface (his note 2026-11-09) */
-  display: flex; flex-direction: column; gap: 14px; height: calc(100vh - 40px); min-height: 620px; }
+.wrap { max-width: 1840px; margin: 0 auto; padding: 20px 16px 0; }   /* no space under the page (his note) */
+.frame { padding: 18px 22px 0;      /* no border around the whole interface (his note 2026-11-09) */
+  display: flex; flex-direction: column; gap: 14px; height: calc(100vh - 20px); min-height: 620px; }
 header { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; }
 h1 .home { color: inherit; text-decoration: none; }
 h1 .home:hover, h1 .home:focus-visible { text-shadow: 0 0 14px var(--cyan), 0 0 30px rgba(64,242,255,.8); }
@@ -74,10 +74,11 @@ p { line-height: 1.45; max-width: 75ch; margin: 6px 0; color: #d9d2f2; }
 #matches > * { flex-shrink: 0; }
 /* Amazon disclosure: last thing in the results column, only once results show; sits at the column's bottom and stays
    pinned there while the results scroll (his note 2026-11-09) */
-.aff { margin: auto 0 0; position: sticky; bottom: -8px; padding: 10px 0 8px; background: var(--bg);
+.aff { margin: auto 0 0; position: sticky; bottom: -8px; padding: 10px 0 8px; background: radial-gradient(ellipse at 50% 20%, var(--bg2) 0%, var(--bg) 70%) fixed, var(--bg);
   color: var(--dim); font-size: 14px; max-width: none; text-align: center; }
 .pane { min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-color: var(--vio) transparent; padding: 2px 8px 8px 2px; }
-.pane-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 2px 0 10px; }
+.pane-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0; padding: 2px 0 10px; }
+#matches > .pane-h { position: sticky; top: -2px; z-index: 2; background: radial-gradient(ellipse at 50% 20%, var(--bg2) 0%, var(--bg) 70%) fixed, var(--bg); }   /* stays put while results scroll (his note) */
 .pane-h .meta { font-size: 16px; }
 .panel { background: rgba(20,10,53,.72); border: 2px solid rgba(140,89,255,.55); border-radius: 14px; padding: 12px 16px; }
 .panel + .panel, .panel + .axes, .note + .axes { margin-top: 12px; }
@@ -277,7 +278,7 @@ footer p { color: var(--dim); font-size: 15px; margin: 4px 0; }
 }
 @media (max-width: 720px) {
   :root { --fs: 16px; }
-  .wrap { padding: 12px 10px 40px; }
+  .wrap { padding: 12px 10px 12px; }
   .frame { padding: 12px 12px; border-radius: 14px; }
   .tabs label { font-size: 17px; padding: 6px 14px; }
   .mode .lbl { font-size: 17px; }
