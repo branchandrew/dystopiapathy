@@ -159,6 +159,11 @@ input[type=range]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px rgba(2
 .card:first-child { border-color: var(--gold); box-shadow: 0 0 14px rgba(255,209,115,.35), inset 0 0 12px rgba(255,209,115,.12); }
 .card:first-child:hover { box-shadow: 0 0 22px rgba(255,209,115,.55), inset 0 0 12px rgba(255,209,115,.16); }
 /* bottom right of each card: More (tertiary) then the two buy buttons */
+.oracle { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 14px; align-items: start; margin: 0 0 10px;
+  padding: 10px 14px; border: 2px dashed rgba(64,242,255,.55); border-radius: 14px; background: rgba(20,10,53,.6); font-size: 16px; line-height: 1.4; }
+.oracle[hidden] { display: none; }
+.oracle img { width: 56px; height: 70px; object-fit: cover; border-radius: 6px; }
+.oracle .actions { margin-top: 8px; }
 .actions { display: flex; justify-content: flex-end; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
 .more-btn { font: inherit; font-size: 15px; color: var(--cyan); background: none; border: none; cursor: pointer;
   padding: 5px 6px; text-decoration: underline; text-underline-offset: 3px; }
@@ -272,6 +277,12 @@ footer p { color: var(--dim); font-size: 15px; margin: 4px 0; }
         <div class="go-wrap" id="go-wrap">
           <p>Pick your themes and set the sliders, then:</p>
           <button type="button" id="go" onclick="go()">GO</button>
+        </div>
+        <div class="oracle" id="oracle" hidden>
+          <img src="covers/mythic-gme-2e.jpg" alt="Mythic Game Master Emulator Second Edition cover" width="56" height="70" loading="lazy">
+          <div><b>Want to play without a GM? Pair any game with an oracle.</b> Mythic Game Master Emulator answers your yes/no
+            questions and throws in twists, so a group or a solo player can run any TTRPG (not just the ones below) without a game master.
+            <div class="actions" id="oracle-buy"></div></div>
         </div>
         <ol id="results" aria-live="polite"></ol>
       </div>
@@ -456,7 +467,7 @@ function resetAll(){
   chosenTags.clear(); gmlessOnly=false; started=false;
   AXES.forEach(a=>{ state[a.key] = {ideal:50, weight: a.key==='load'?70:40, touched:false}; });
   buildAxes();
-  document.getElementById('results').innerHTML='';
+  document.getElementById('results').innerHTML=''; showOracle(false);
   document.getElementById('go-wrap').hidden=false; document.getElementById('topn').hidden=true;
   document.getElementById('rest').hidden=true;
   document.querySelectorAll('.pane').forEach(p=>{ p.scrollTop=0; }); window.scrollTo(0,0);
@@ -464,9 +475,22 @@ function resetAll(){
 function pickMode(){ document.getElementById('rest').hidden = false; recompute(); }
 function go(){ started = true; document.getElementById('go-wrap').hidden = true; document.getElementById('topn').hidden = false; recompute();
   if(window.matchMedia('(max-width: 980px)').matches) document.getElementById('matches').scrollIntoView({block:'start'}); }
+// Mythic GME (his ask): shown whenever the visitor wants to play without a GM (No GM needed, or Solo)
+const ORACLE = {dtrpg:'https://www.drivethrurpg.com/en/product/422929/mythic-game-master-emulator-second-edition',
+                amazon_q:'Mythic Game Master Emulator Second Edition'};
+function showOracle(on){
+  const o=document.getElementById('oracle'); o.hidden=!on;
+  if(on && !o.dataset.ready){
+    const am='https://'+AMZ_HERE[0]+'/s?k='+encodeURIComponent(ORACLE.amazon_q)+'&tag='+AMZ_HERE[1];
+    document.getElementById('oracle-buy').innerHTML='<span class="buy"><a href="'+ORACLE.dtrpg+'?'+DTRPG_AFF+'" target="_blank" rel="noopener sponsored">Buy &middot; DriveThruRPG</a>'
+      +'<a href="'+am+'" target="_blank" rel="noopener sponsored">Buy &middot; Amazon</a></span>';
+    o.dataset.ready='1';
+  }
+}
 function recompute(){
   if(!started) return;
   const mode = currentMode();
+  showOracle(gmlessOnly || mode==='solo');
   // ties = same whole percentage (as shown), broken by popularity
   let rows = GAMES
     .filter(g=> chosenTags.size===0 || g.themes.some(t=>chosenTags.has(t)))
