@@ -451,11 +451,17 @@ function placePop(p, b){
   p.style.left = x + 'px'; p.style.top = Math.max(m, y) + 'px';
 }
 const invokerOf = p => document.querySelector('[popovertarget="'+p.id+'"]');
+// place it BEFORE it opens (measured invisibly), so it appears already in position: no jump, no flicker
+document.addEventListener('beforetoggle', e=>{
+  const p=e.target; if(!p.classList || !p.classList.contains('pop') || e.newState!=='open') return;
+  const b=invokerOf(p); if(!b) return;
+  p.style.visibility='hidden'; p.style.display='block';
+  placePop(p, b);
+  p.style.display=''; p.style.visibility='';
+}, true);
 document.addEventListener('toggle', e=>{
   const p=e.target; if(!p.classList || !p.classList.contains('pop')) return;
-  const b=invokerOf(p); if(!b) return;
-  b.setAttribute('aria-expanded', e.newState==='open');
-  if(e.newState==='open') placePop(p, b);
+  const b=invokerOf(p); if(b) b.setAttribute('aria-expanded', e.newState==='open');
 }, true);
 addEventListener('scroll', ()=>{ document.querySelectorAll('.pop:popover-open').forEach(p=>{ const b=invokerOf(p); if(b) placePop(p,b); }); }, true);
 addEventListener('resize', ()=>{ document.querySelectorAll('.pop:popover-open').forEach(p=>{ const b=invokerOf(p); if(b) placePop(p,b); }); });
