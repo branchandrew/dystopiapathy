@@ -73,6 +73,7 @@ p { line-height: 1.45; max-width: 75ch; margin: 6px 0; color: #d9d2f2; }
 
 /* Theme tags: pills with neon checkboxes */
 .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.gmless-row { margin-top: 12px; }
 .tags label { display: inline-flex; align-items: center; gap: 8px; font-size: 17px; color: var(--dim); white-space: nowrap;
   border: 2px solid rgba(140,89,255,.6); border-radius: 12px; padding: 4px 12px 4px 9px; cursor: pointer;
   transition: color .15s, background .15s, border-color .15s, box-shadow .15s; }
@@ -237,8 +238,10 @@ footer p { color: var(--dim); font-size: 15px; margin: 4px 0; }
       <div class="pane" id="controls">
         <div class="panel">
           <div class="qrow"><h2>Themes you want</h2><button type="button" class="why-btn" aria-expanded="false" aria-controls="x-themes" onclick="toggleWhy(this)">What does this mean?</button></div>
-          <div class="why-text" id="x-themes" hidden>The settings and genres you want to play in. Leave them all unticked and every game is considered.</div>
+          <div class="why-text" id="x-themes" hidden>The settings and genres you want to play in. Leave them all unticked and every game is considered.
+            "No GM needed" shows only games your group plays without a game master (shared or rotating narration, oracles).</div>
           <div class="tags" id="tags"></div>
+          <div class="tags gmless-row"><label><input type="checkbox" id="gmless" onchange="gmlessOnly=this.checked; recompute()"> No GM needed (GM-less games only)</label></div>
         </div>
         <p class="note">Only the questions you answer count: move a slider to switch it on. Set how much you care with its importance (0 ignores it). Then hit GO.</p>
         <div id="axes" class="axes"></div>
@@ -282,7 +285,7 @@ const TAG_ORDER = ["high fantasy","heroic fantasy","sword & sorcery","mythic","a
 const AXES = [
  {key:'load', q:'How much rules crunchiness do you prefer?', left:'Light', right:'Heavy', cap:true,
   more:'Each game is rated on how complex its rules are for both players and the game master. The crunch score increases the more unique procedures and rulings a game has.'},
- {key:'onramp', q:'Easy to start simple and grow vs learn everything at once', left:'Learn it all at once', right:'Start simple &amp; grow',
+ {key:'onramp', q:'Easy to start simple and grow vs learn everything at once', left:'Small &amp; complete', right:'Start simple &amp; grow',
   more:'Low = everything is essential, no hidden chapters. High = a big game you can start small and add systems to over time.'},
  {key:'build_depth', q:'How much character-building / optimization?', left:'Pick &amp; play', right:'Deep builds',
   more:'Low = character creation and growth is extremely basic with minimal mechanical options. High = feats, skills, builds you tinker with (min-maxer territory) allowing you to craft a unique and optimized character throughout the game.'},
@@ -307,6 +310,7 @@ const AXES = [
 const state = {};
 AXES.forEach(a=>{ state[a.key] = {ideal:50, weight: a.key==='load'?70:40, touched:false}; });   // untouched = not counted
 const chosenTags = new Set();
+let gmlessOnly = false;                                   // "No GM needed": only games played without a game master
 
 function gameLoad(g, mode){
   if(mode==='gm') return g.gm_load;
@@ -422,6 +426,7 @@ function recompute(){
   let rows = GAMES
     .filter(g=> chosenTags.size===0 || g.themes.some(t=>chosenTags.has(t)))
     .filter(g=> mode==='solo' || !g.solo_only)                       // solo-only games never go to a group
+    .filter(g=> !gmlessOnly || g.gmless)
     .map(g=>{ const s=score(g,mode); return {g, s, r: s===null ? null : Math.round(s)}; })
     // Solo: games you can play alone rank as if 25 points higher (the shown % stays the real match)
     .sort((a,b)=> ((b.r||0)+(mode==='solo'&&b.g.solo?SOLO_BOOST:0)) - ((a.r||0)+(mode==='solo'&&a.g.solo?SOLO_BOOST:0))
@@ -460,7 +465,7 @@ function recompute(){
       +'</div>';
     ol.appendChild(li);
   });
-  if(rows.length===0) ol.innerHTML='<li class="empty"><em>No scored games carry those themes yet (only 148 scored so far).</em></li>';
+  if(rows.length===0) ol.innerHTML='<li class="empty"><em>No scored games match those filters yet (only 148 scored so far).</em></li>';
   else animateResults(ol, before);
 }
 
