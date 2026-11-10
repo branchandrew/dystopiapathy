@@ -168,7 +168,18 @@ input[type=range]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px rgba(2
 .oracle[hidden] { display: none; }
 .oracle img { width: 56px; height: 70px; object-fit: cover; border-radius: 6px; }
 .oracle .actions { margin-top: 8px; }
-.actions { display: flex; justify-content: flex-end; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.actions { display: flex; justify-content: flex-end; align-items: center; gap: 10px; flex-wrap: nowrap; margin-top: 10px; }
+.card { container: card / inline-size; }
+.card > .actions { grid-column: 1 / -1; margin-top: 0; }   /* one row, the card's full width (his note: never stacked) */
+.actions > *, .actions .buy a { white-space: nowrap; flex: none; }
+.actions .buy { flex-wrap: nowrap; }
+.l-short { display: none; }
+@container card (max-width: 600px) {                 /* narrow cards: short labels so the four still fit on one row */
+  .actions .l-long { display: none; } .actions .l-short { display: inline; }
+  .actions { gap: 8px; } .actions .buy { gap: 8px; } .actions .buy a, .actions .info-btn { padding: 5px 10px; font-size: 15px; } }
+@container card (max-width: 380px) {
+  .actions { gap: 5px; } .actions .buy { gap: 5px; } .actions .buy a, .actions .info-btn { padding: 4px 7px; font-size: 13px; }
+  .actions .more-btn { font-size: 13px; padding: 4px 2px; } }
 .more-btn { font: inherit; font-size: 15px; color: var(--cyan); background: none; border: none; cursor: pointer;
   padding: 5px 6px; text-decoration: underline; text-underline-offset: 3px; }
 .more-btn::after { content: " \25BE"; text-decoration: none; display: inline-block; margin-left: 3px; }
@@ -435,8 +446,8 @@ function buyLinks(name){
                      : 'https://www.drivethrurpg.com/en/browse?q=' + encodeURIComponent(name) + '&' + DTRPG_AFF;
   const am = 'https://' + AMZ_HERE[0] + '/s?k=' + encodeURIComponent(L.amazon_q || (name + ' RPG')) + '&tag=' + AMZ_HERE[1];
   return '<span class="buy">'
-    + (L.dtrpg === false ? '' : '<a href="' + dt + '" target="_blank" rel="noopener sponsored">Buy &middot; DriveThruRPG</a>')
-    + (L.amazon === false ? '' : '<a href="' + am + '" target="_blank" rel="noopener sponsored">Buy &middot; Amazon</a>')
+    + (L.dtrpg === false ? '' : '<a href="' + dt + '" target="_blank" rel="noopener sponsored"><span class="l-long">Buy &middot; DriveThruRPG</span><span class="l-short">DriveThruRPG</span></a>')
+    + (L.amazon === false ? '' : '<a href="' + am + '" target="_blank" rel="noopener sponsored"><span class="l-long">Buy &middot; Amazon</span><span class="l-short">Amazon</span></a>')
     + '</span>';
 }
 
@@ -590,10 +601,10 @@ function recompute(){
       +'<small class="meta">'+g.themes.join(', ')+' &middot; '+g.mechanic
       +' &middot; '+mode+' load '+load+' &middot; total crunch '+g.crunch+'%'
       +(g.solo?' &middot; solo-capable':'')+(g.gmless?' &middot; GM-less':'')+'</small>'
-      +'<div class="actions"><button type="button" class="more-btn" popovertarget="why-'+i+'" aria-expanded="false">Why this score</button>'
-      +'<button type="button" class="info-btn" data-game="'+g.name.replace(/"/g,'&quot;')+'" onclick="openInfo(this.dataset.game)">More info</button>'
-      +buyLinks(g.name)+'</div>'
       +'</div>'
+      +'<div class="actions"><button type="button" class="more-btn" popovertarget="why-'+i+'" aria-expanded="false"><span class="l-long">Why this score</span><span class="l-short">Why?</span></button>'
+      +'<button type="button" class="info-btn" data-game="'+g.name.replace(/"/g,'&quot;')+'" onclick="openInfo(this.dataset.game)"><span class="l-long">More info</span><span class="l-short">Info</span></button>'
+      +buyLinks(g.name)+'</div>'
       +'<div class="pop more-pop" popover id="why-'+i+'">'
       +(why.indexOf('<tr>')>=0 ? '<div>How '+g.name+' sits on the questions you answered (bar = the game, pink mark = you):</div>'+why
                                : '<div>Answer a question on the left and this shows how the game compares on it.</div>')
