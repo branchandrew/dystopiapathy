@@ -59,6 +59,10 @@ p { line-height: 1.45; max-width: 75ch; margin: 6px 0; color: #d9d2f2; }
   box-shadow: 0 0 10px rgba(140,89,255,.5); }
 .tabs label { position: relative; font-size: 20px; color: var(--dim); white-space: nowrap; padding: 7px 22px; cursor: pointer; }
 .tabs label + label { border-left: 1px solid rgba(140,89,255,.5); }
+.tabs label { transition: color .15s, background-color .15s, text-shadow .15s, box-shadow .15s; }
+.tabs label:hover { color: var(--ice); background: rgba(64,242,255,.12); text-shadow: 0 0 8px var(--cyan);
+  box-shadow: inset 0 -3px 0 var(--cyan); }
+.tabs label:has(input:checked):hover { background: rgba(255,64,217,.26); }
 .tabs input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
 .tabs label:has(input:checked) { color: var(--ice); background: rgba(255,64,217,.18); text-shadow: 0 0 8px var(--mag);
   box-shadow: inset 0 -3px 0 var(--mag); }
